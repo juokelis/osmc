@@ -125,8 +125,8 @@ def log(message):
 
 
 def lang(id):
-    san = __addon__.getLocalizedString(id).encode('utf-8', 'ignore')
-    return san
+	san = __addon__.getLocalizedString(id).encode('utf-8', 'ignore')
+	return san
 
 
 class OSMCSettingClass(threading.Thread):
@@ -189,7 +189,7 @@ class OSMCSettingClass(threading.Thread):
 		self.reboot_required = False
 
 		log('START')
-		for x, k in self.setting_data_method.iteritems():
+		for x, k in self.setting_data_method.items():
 			log("%s = %s" % (x, k.get('setting_value','no setting value')))
 
 
@@ -262,7 +262,7 @@ class OSMCSettingClass(threading.Thread):
 
 
 		# apply the individual settings changes
-		for k, v in self.setting_data_method.iteritems():
+		for k, v in self.setting_data_method.items():
 
 			# get the application method and stored setting value from the dictionary
 			method = v.get('apply', False)
@@ -276,7 +276,7 @@ class OSMCSettingClass(threading.Thread):
 
 				# if a specific apply method exists for the setting, then call that
 				try:
-					method(setting_value)
+					method(value)
 				except:
 					pass
 

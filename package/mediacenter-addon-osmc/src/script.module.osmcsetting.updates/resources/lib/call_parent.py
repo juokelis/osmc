@@ -6,7 +6,7 @@ if len(sys.argv) > 1:
 
 	msg = sys.argv[1]
 
-	print 'OSMC settings sending response, %s' % msg
+	print('OSMC settings sending response, %s' % msg)
 
 	address = '/var/tmp/osmc.settings.update.sockfile'
 
@@ -17,9 +17,9 @@ if len(sys.argv) > 1:
 	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	sock.connect(address)
 
-	sock.sendall(message) 
+	sock.sendall(message.encode())
 	sock.close()
 
-	print 'OSMC settings sent response, %s' % msg
+	print('OSMC settings sent response, %s' % msg)
 
 	

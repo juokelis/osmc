@@ -15,12 +15,8 @@ import threading
 import traceback
 import xml.etree.ElementTree as ET
 
-sys.path.append(xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources','lib')))
-
 # Custom Modules
-import osmc_timezones
-import LICENSE
-import WARRANTY
+from resources.lib import osmc_timezones, LICENSE, WARRANTY
 
 EULA       = LICENSE.license
 WARR       = WARRANTY.warranty
@@ -171,26 +167,26 @@ class Networking_caller(threading.Thread):
 
 def close_walkthru_on_error(func):
 
-    def wrapper(parent, *args, **kwargs):
+	def wrapper(parent, *args, **kwargs):
 
-        try:
-            return func(parent, *args, **kwargs)
-        except Exception, e:
+		try:
+			return func(parent, *args, **kwargs)
+		except Exception as e:
 
-            log('============= Walkthru Error ====================', xbmc.LOGERROR)
-            log(traceback.format_exc(), xbmc.LOGERROR)
-            log('=================================', xbmc.LOGERROR)
+			log('============= Walkthru Error ====================', xbmc.LOGERROR)
+			log(traceback.format_exc(), xbmc.LOGERROR)
+			log('=================================', xbmc.LOGERROR)
 
-            parent.close()
+			parent.close()
 
-    return wrapper
+	return wrapper
 
 
 
 
 class walkthru_gui(xbmcgui.WindowXMLDialog):
 
-	def __init__(	self, 
+	def __init__(	self,
 					strXMLname, 
 					strFallbackPath, 
 					strDefaultName, 
@@ -352,7 +348,7 @@ class walkthru_gui(xbmcgui.WindowXMLDialog):
 	def populate_timezone_controls(self):
 
 		# populate the timezone controls
-		for region, countries in self.timezones.iteritems():
+		for region, countries in self.timezones.items():
 
 			for country in countries:
 
@@ -483,7 +479,7 @@ class walkthru_gui(xbmcgui.WindowXMLDialog):
 		if self.selected_country != None:
 
 			# set timezone
-			for reg, cnt in self.timezones.iteritems():
+			for reg, cnt in self.timezones.items():
 
 				if self.selected_country in cnt:
 					self.selected_region = reg
@@ -887,7 +883,7 @@ class walkthru_gui(xbmcgui.WindowXMLDialog):
 
 	def show_panel(self, controlID):
 
-		for panel_name, control_dict in PANEL_MAP.iteritems():
+		for panel_name, control_dict in PANEL_MAP.items():
 
 			if controlID == panel_name or controlID == control_dict['panel_menu_item_id']:
 

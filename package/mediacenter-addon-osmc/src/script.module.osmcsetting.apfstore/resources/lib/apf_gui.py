@@ -20,25 +20,11 @@ sys.path.append(os.path.join(__path__, 'resources','lib'))
 
 # OSMC SETTING Modules
 from CompLogger import comprehensive_logger as clog
+from apf_class import log, lang, iteritems
 
 
 ADDONART = os.path.join(__path__, 'resources','skins', 'Default', 'media')
 USERART  = os.path.join(xbmc.translatePath('special://userdata/'),'addon_data ', addonid)
-
-
-def log(message):
-
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-		
-	xbmc.log('OSMC APFStore gui : ' + str(message), level=xbmc.LOGDEBUG)
-
-
-def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
-	return san 
 
 
 class apf_GUI(xbmcgui.WindowXMLDialog):
@@ -57,7 +43,7 @@ class apf_GUI(xbmcgui.WindowXMLDialog):
 
 		self.list = self.getControl(500)
 		self.list.setVisible(True)
-		for x, y in self.apf_dict.iteritems():
+		for x, y in iteritems(self.apf_dict):
 			# self.current_icon = '/home/kubkev/.kodi/addons/script.module.osmcsetting.apfstore/resources/skins/Default/media/osmc_osmclogo.png'
 
 			self.list.addItem(y)
@@ -78,7 +64,7 @@ class apf_GUI(xbmcgui.WindowXMLDialog):
 		install = 0
 		removal = 0
 
-		for x, y in self.action_dict.iteritems():
+		for x, y in iteritems(self.action_dict):
 
 			if y == 'Install':
 
@@ -163,7 +149,7 @@ class apf_GUI(xbmcgui.WindowXMLDialog):
 
 			# send install and removal list to Update Service
 
-			action_list = ['install_' + k if v == 'Install' else 'removal_' + k for k, v in self.action_dict.iteritems()]
+			action_list = ['install_' + k if v == 'Install' else 'removal_' + k for k, v in iteritems(self.action_dict)]
 
 			action_string = '|=|'.join(action_list)
 

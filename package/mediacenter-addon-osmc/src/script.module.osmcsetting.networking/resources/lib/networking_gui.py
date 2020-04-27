@@ -236,7 +236,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
         # list containing list items of all discovered bluetooth devices
         self.discovered_bluetooths = []
 
-        self.bluetooth_discovering = False;
+        self.bluetooth_discovering = False
 
         # flag to identify when a MySQL setting has been changed
         self.mysql_changed = False
@@ -276,7 +276,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
             self.toggle_controls(False, [SELECTOR_WIRELESS_NETWORK])
             self.toggle_controls(False, [SELECTOR_TETHERING])
 
-        log("Checking bluetooth");
+        log("Checking bluetooth")
         if not osmc_bluetooth.is_bluetooth_available():
             self.toggle_controls(False, [SELECTOR_BLUETOOTH])
 
@@ -413,7 +413,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
                 self.shutdown_process()
         except:
             self.clear_busy_dialogue()
-            log("Unhandled Exception thrown in Networking GUI\n%s" % traceback.format_exc());
+            log("Unhandled Exception thrown in Networking GUI\n%s" % traceback.format_exc())
             message = "Unhandled Exeption caught - See log for details"
             xbmc.executebuiltin("XBMC.Notification(%s,%s,%s)" % ("Networking Add-on", message, "2500"))
 
@@ -1049,14 +1049,14 @@ class networking_gui(xbmcgui.WindowXMLDialog):
         # 'Status'              'Configuring...'
         self.wired_status_label.setLabel(lang(32044) + ' : ' + lang(32016))
 
-        ethernet_state = not osmc_network.is_ethernet_enabled();
+        ethernet_state = not osmc_network.is_ethernet_enabled()
         osmc_network.toggle_ethernet_state(ethernet_state)
         
         # 5 second wait to allow connman to make the changes before refreshing
         changed_state = 1
         while changed_state != 0 and changed_state < 5:
             if  osmc_network.is_ethernet_enabled() == ethernet_state:
-                 changed_state = 0;
+                 changed_state = 0
             else:
                 changed_state += 1
             xbmc.sleep(1000)
@@ -1069,7 +1069,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
                 settings = osmc_network.get_ethernet_settings()
                 log(settings)
                 if settings and 'State' in settings.keys() and settings['State'] in ('ready', 'online'):
-                     changed_state = 0;
+                     changed_state = 0
                 else:
                     changed_state += 1
                 xbmc.sleep(500)
@@ -1079,7 +1079,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
     def update_apply_reset_button(self, net_type):
 
         if net_type == 'WIRED':
-            if cmp(self.get_wired_config(), self.current_network_config) == 0 or not self.get_wired_config():
+            if self.get_wired_config() == self.current_network_config or not self.get_wired_config():
                 self.toggle_controls(False, [WIRED_RESET_BUTTON, WIRED_APPLY_BUTTON])
 
             else:
@@ -1087,7 +1087,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
 
         if net_type == 'WIRELESS':
             wireless_config = self.get_wireless_config(self.conn_ssid)
-            if cmp(wireless_config, self.current_network_config) == 0:
+            if wireless_config == self.current_network_config:
                 self.toggle_controls(False, [WIRELESS_RESET_BUTTON, WIRELESS_APPLY_BUTTON])
 
             else:
@@ -1099,7 +1099,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
         if ssid is not None:
 
             wifi = None
-            for adapterAddress, wifis in osmc_network.get_wifi_networks().iteritems():
+            for adapterAddress, wifis in osmc_network.get_wifi_networks().items():
                 wifi = wifis.get(ssid, None)
 
             if wifi:
@@ -1258,7 +1258,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
         # 5 second wait to allow connman to make the changes before refreshing
         while changed_state != 0 and changed_state < 5:
             if  osmc_network.is_wifi_enabled() == wifi_state:
-                 changed_state = 0;
+                 changed_state = 0
             else:
                 changed_state += 1
             xbmc.sleep(1000)
@@ -1326,7 +1326,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
             self.clear_busy_dialogue()
 
         wifi = None
-        for adapterAddress, wifis in osmc_network.get_wifi_networks().iteritems():
+        for adapterAddress, wifis in osmc_network.get_wifi_networks().items():
 
             wifi = wifis.get(ssid, None)
 
@@ -1582,7 +1582,7 @@ class networking_gui(xbmcgui.WindowXMLDialog):
 
     def connect_bluetooth(self, address, alias):
 
-        connected = False;
+        connected = False
         try:
             connected = osmc_bluetooth.connect_device(address)
         except:
@@ -1862,8 +1862,8 @@ class bluetooth_population_thread(threading.Thread):
             except:
                 pass
 
-        map(lambda (address, info): list_control.addItem(self.create_bluetooth_item(address, info)), devices_dict.iteritems())
-
+        for address, info in devices_dict.items():
+            list_control.addItem(self.create_bluetooth_item(address, info))
 
     def create_bluetooth_item(self, address, info):
         label       = ""
@@ -2024,9 +2024,9 @@ class wifi_populate_bot(threading.Thread):
             self.WFP.removeItem(itemIndex)
 
         if len(running_dict.keys()) > 0:
-            for adapterAddress, wifis in running_dict.iteritems():
+            for adapterAddress, wifis in running_dict.items():
 
-                for ssid, info in wifis.iteritems():
+                for ssid, info in wifis.items():
                     self.WFP.addItem(self.convert_wifi_to_listitem(info, multiAdpter))
                     connected = True if info['State'] in ('ready', 'online') else False
 

@@ -27,18 +27,11 @@ import traceback
 import xbmc
 import xbmcaddon
 import xbmcgui
-WINDOW = xbmcgui.Window(10000)
-if not os.path.isfile('/walkthrough_completed'):
-	WINDOW.setProperty("walkthrough_is_running", 'any_value')
-	try:
-		xbmc.setosmcwalkthroughstatus(1)
-	except Exception as e:
-		print traceback.format_exc()
 
 # Standard modules
 import datetime
 import json
-import Queue
+import queue
 import re
 import shutil
 import socket
@@ -48,11 +41,15 @@ import threading
 import time
 
 # Custom modules
-sys.path.append(xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources','lib')))
-import osmc_walkthru
-import osmc_settingsGUI
-import osmc_comms
-import osmc_ubiquifonts
+from resources.lib import osmc_walkthru, osmc_settingsGUI, osmc_comms, osmc_ubiquifonts
+
+WINDOW = xbmcgui.Window(10000)
+if not os.path.isfile('/walkthrough_completed'):
+	WINDOW.setProperty("walkthrough_is_running", 'any_value')
+	try:
+		xbmc.setosmcwalkthroughstatus(1)
+	except Exception as e:
+		xbmc.log(traceback.format_exc(), xbmc.LOGERROR)
 
 
 __addon__        = xbmcaddon.Addon()
@@ -62,18 +59,12 @@ DIALOG           = xbmcgui.Dialog()
 
 
 def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+	san = __addon__.getLocalizedString(id)
 	return san 
 
 
 def log(message):
-
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-		
-	xbmc.log('OSMC ADDON MAIN ' + str(message), level=xbmc.LOGDEBUG)
+	xbmc.log('OSMC ADDON MAIN ' + str(message), level=xbmc.LOGWARNING)
 
 
 def check_vendor():
@@ -157,7 +148,7 @@ class Main(object):
 				log(traceback.format_exc())
 
 		# queue for communication with the comm and Main
-		self.parent_queue = Queue.Queue()
+		self.parent_queue = queue.Queue()
 
 		# create socket, listen for comms
 		self.listener = osmc_comms.communicator(self.parent_queue, socket_file='/var/tmp/osmc.settings.sockfile')
@@ -186,6 +177,7 @@ class Main(object):
 
 	def create_gui(self):
 
+		log('create_gui')
 		self.stored_gui = osmc_settingsGUI.OSMCGui(queue=self.parent_queue)
 		self.stored_gui.setDaemon(True)
 		# self.stored_gui.start()
@@ -252,7 +244,7 @@ class Main(object):
 
 								sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 								sock.connect(address)
-								sock.sendall(message) 
+								sock.sendall(message.encode())
 								sock.close()
 
 							except Exception as e:
@@ -328,8 +320,10 @@ class Main(object):
 		
 				if response == 'open':
 					try:
+						log('trying stored_gui')
 						del self.stored_gui  	# TESTING: this will mean that the gui is populated and loaded every time it opens
 					except:
+						log('no stored_gui')
 						pass
 					self.open_gui()
 
@@ -466,7 +460,7 @@ class Main(object):
 		result_raw = xbmc.executeJSONRPC(xbmc_request)
 		result = json.loads(result_raw)
 		media_dict_raw = result.get('result', {}).get('sources', {})
-		media_list_raw = [v.get('file', '') for k, v in media_dict_raw.iteritems()]
+		media_list_raw = [v.get('file', '') for k, v in media_dict_raw.items()]
 		media_string = ''.join(media_list_raw)
 
 		return media_string
@@ -480,6 +474,7 @@ class Main(object):
 
 		try:
 			# try opening the gui
+			log('try opening the gui')
 			self.stored_gui.start()
 			self.gui_last_accessed = datetime.datetime.now()
 			self.skip_check = False
@@ -487,7 +482,7 @@ class Main(object):
 		except:
 			# if that doesnt work then it is probably because the gui was too old and has been deleted
 			# so recreate the gui and open it
-
+			log('failed opening the gui')
 			self.create_gui()
 			self.gui_last_accessed = datetime.datetime.now()
 			self.skip_check = False

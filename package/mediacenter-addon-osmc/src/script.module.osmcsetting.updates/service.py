@@ -32,6 +32,7 @@ sys.path.append(__libpath__)
 
 import update_service
 
+xbmc.executebuiltin('ToggleDebug()')
 
 if __name__ == "__main__":
 

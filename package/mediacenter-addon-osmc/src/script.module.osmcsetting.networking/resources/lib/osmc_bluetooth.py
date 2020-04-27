@@ -163,7 +163,7 @@ def encode_return(result, messages):
 
 
 def pair_device(deviceAddress, scriptBasePath = ''):
-    print 'Attempting to pair with ' + deviceAddress
+    print('Attempting to pair with ' + deviceAddress)
     paired = False
     paired = pair_using_agent(deviceAddress, scriptBasePath)
     if not paired:
@@ -179,7 +179,7 @@ def pair_using_agent(deviceAddress, scriptBasePath = ''):
     script_path = scriptBasePath + PAIRING_AGENT
     script = str.join(' ', [sys.executable, script_path,deviceAddress])
     paired = False
-    print 'calling agent "' + script + '"'
+    print('calling agent "' + script + '"')
     child = pexpect.spawn(script)
     while True:
         try:

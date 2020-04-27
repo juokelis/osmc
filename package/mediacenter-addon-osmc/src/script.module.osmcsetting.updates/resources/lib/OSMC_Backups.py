@@ -17,7 +17,8 @@ import xbmcgui
 import xbmcaddon
 import xbmcvfs
 
-__addonid__	= 'OSMC Backup'
+__addon__ = xbmcaddon.Addon()
+__addonid__ = 'OSMC Backup'
 DIALOG = xbmcgui.Dialog()
 
 TIME_PATTERN = '%Y_%m_%d_%H_%M_%S'
@@ -76,7 +77,7 @@ LABELS = 	{
 
 
 def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+	san = __addon__.getLocalizedString(id)
 	return san
 
 
@@ -196,7 +197,7 @@ class osmc_backup(object):
 
 		backup_candidates = []
 
-		for setting, location in LOCATIONS.iteritems():
+		for setting, location in LOCATIONS.items():
 
 			if self.s[setting]:
 
@@ -570,7 +571,7 @@ class osmc_backup(object):
 				# xml files or they are the base folder
 
 				menu_items = []
-				for k, v in LABELS.iteritems():
+				for k, v in LABELS.items():
 					for member in members:
 						if k.endswith(member.name):
 							menu_items.append((member, v))

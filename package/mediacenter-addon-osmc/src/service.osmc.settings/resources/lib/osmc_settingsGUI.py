@@ -6,41 +6,31 @@ import xbmcgui
 # STANDARD library modules
 import ast
 import datetime
-import imp
+from importlib import util
 import json
 import os
 import pickle
-import Queue
+import queue
 import select
 import socket
 import sys
 import threading
 import time
 import traceback
-from CompLogger import comprehensive_logger as clog
+from resources.lib.CompLogger import comprehensive_logger as clog
 
-path       = xbmcaddon.Addon().getAddonInfo('path')
-lib        = os.path.join(path, 'resources','lib')
-media      = os.path.join(path, 'resources','skins','Default','media')
-
-sys.path.append(xbmc.translatePath(lib))
 
 __addon__  = xbmcaddon.Addon()
 scriptPath = __addon__.getAddonInfo('path')
 WINDOW     = xbmcgui.Window(10000)
 
-def log(message):
 
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-		
-	xbmc.log('osmc_settings: ' + str(message), level=xbmc.LOGDEBUG)
+def log(message):
+	xbmc.log('osmc_settings: ' + str(message), level=xbmc.LOGWARNING)
 
 
 def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+	san = __addon__.getLocalizedString(id)
 	return san 
 
 
@@ -312,6 +302,7 @@ class OSMCGui(threading.Thread):
 		# known modules is a list of tuples detailing all the known and permissable modules and services
 		# (module name, order): the order is the hierarchy of addons (which is used to 
 		# determine the positions of addon in the gui)
+		log('create_gui')
 		self.known_modules_order = 	{
 									"script.module.osmcsetting.pi":						0,
 									"script.module.osmcsetting.pioverclock":			1,
@@ -486,9 +477,14 @@ class OSMCGui(threading.Thread):
 
 		# if you got this far then this is almost certainly an OSMC setting
 		try:
-			new_module_name = sub_folder.replace('.','')
-			log(new_module_name)
-			OSMCSetting = imp.load_source(new_module_name, osmc_setting_file)
+			new_module_name = sub_folder.replace('.', '')
+			log('new_module_name '+new_module_name)
+			log('osmc_setting_file '+osmc_setting_file)
+			spec = util.spec_from_file_location(new_module_name, osmc_setting_file)
+			# OSMCSetting = util.spec_from_file_location(new_module_name, osmc_setting_file).module_from_spec()
+			OSMCSetting = util.module_from_spec(spec)
+			spec.loader.exec_module(OSMCSetting)
+			log('OSMCSetting %s' % OSMCSetting)
 			log(dir(OSMCSetting))
 			setting_instance = OSMCSetting.OSMCSettingClass()
 			setting_instance.setDaemon(True)

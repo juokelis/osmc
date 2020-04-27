@@ -175,7 +175,7 @@ class OSMC_Slideshow_GUI(xbmcgui.WindowXMLDialog):
 				pass
 
 			else:
-				xbmc.executebuiltin('SetFocus(1,%s)' % pos - 1)
+				xbmc.executebuiltin('SetFocus(1,%i)' % (int(pos) - 1))
 
 		elif actionID in RIGHT_ACTIONS:
 			# user is trying to move to the next image
@@ -186,7 +186,7 @@ class OSMC_Slideshow_GUI(xbmcgui.WindowXMLDialog):
 				self.setFocusId(999)
 
 			else:
-				xbmc.executebuiltin('SetFocus(1,%s)' % pos + 1)
+				xbmc.executebuiltin('SetFocus(1,%i)' % (int(pos) - 1))
 
 
 	def onClick(self, controlID):
@@ -206,7 +206,7 @@ class OSMC_Slideshow_GUI(xbmcgui.WindowXMLDialog):
 				self.navi_group.setVisibleCondition('True')
 			
 			else:
-				xbmc.executebuiltin('SetFocus(1,%s)' % pos + 1)
+				xbmc.executebuiltin('SetFocus(1,%i)' % (int(pos) + 1))
 
 
 	def onFocus(self, controlID):

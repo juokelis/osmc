@@ -11,12 +11,16 @@ import hashlib
 import threading
 import json
 import requests
-import Queue
 import shutil
 import apt
 import traceback
 import datetime as dt
 import subprocess
+
+try:
+	import queue
+except ImportError:
+	import Queue as queue
 
 addonid 	= "script.module.osmcsetting.apfstore"
 __addon__  	= xbmcaddon.Addon(addonid)
@@ -27,7 +31,8 @@ __setting__ = __addon__.getSetting
 sys.path.append(os.path.join(__path__, 'resources','lib'))
 
 # OSMC SETTING Modules
-from CompLogger import comprehensive_logger as clog
+from osmcommon.resources.lib.CompLogger import comprehensive_logger as clog
+from osmcommon.resources.lib.osmc_helpers import helper_log, helper_lang, iteritems
 from apf_class import APF_obj
 from apf_gui import apf_GUI
 
@@ -35,21 +40,11 @@ from apf_gui import apf_GUI
 ADDONART = os.path.join(__path__, 'resources','skins', 'Default', 'media')
 USERART  = os.path.join(xbmc.translatePath('special://userdata/'),'addon_data', addonid)
 
+def log (message):
+	helper_log (message, 'OSMC APFStore store')
 
-def log(message):
-
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-		
-	xbmc.log('OSMC APFStore store : ' + str(message), level=xbmc.LOGDEBUG)
-
-
-def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
-	return san 
-
+def lang (id):
+	helper_lang (__addon__, id)
 
 '''
 =========================
@@ -306,9 +301,9 @@ class APF_STORE(object):
 	@clog(logger=log)
 	def retrieve_icons(self):
 
-		thread_queue = Queue.Queue()
+		thread_queue = queue.Queue()
 
-		for ident, apf in self.apf_dict.iteritems():
+		for ident, apf in iteritems(self.apf_dict):
 
 			if apf.retrieve_icon:
 
@@ -342,15 +337,15 @@ class APF_STORE(object):
 
 				with open(os.path.join(USERART, icon_name), 'wb') as out_file:
 
-				    shutil.copyfileobj(response.raw, out_file)
+					shutil.copyfileobj(response.raw, out_file)
 
 				del response
 
 				q_item.refresh_icon()
 
-			except Queue.Empty:
+			except queue.Empty:
 
-				log('Queue.Empty error')
+				log('queue.Empty error')
 
 				break
 
@@ -362,9 +357,9 @@ class APF_STORE(object):
 		with os.popen('dpkg -l') as f:
 			self.package_list = ''.join(f.readlines())
 
-		thread_queue = Queue.Queue()
+		thread_queue = queue.Queue()
 
-		for ident, apf in self.apf_dict.iteritems():
+		for ident, apf in iteritems(self.apf_dict):
 
 			thread_queue.put(apf)
 
@@ -408,9 +403,9 @@ class APF_STORE(object):
 				
 				thread_queue.task_done()
 
-			except Queue.Empty:
+			except queue.Empty:
 
-				log('Queue.Empty error')
+				log('queue.Empty error')
 
 				break
 

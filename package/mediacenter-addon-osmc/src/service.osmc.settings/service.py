@@ -27,22 +27,12 @@ import resources.lib.osmc_main as m
 
 
 def log(message):
-
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-
-	xbmc.log('OSMC ADDON MAIN ' + str(message), level=xbmc.LOGDEBUG)
+    xbmc.log('OSMC ADDON MAIN ' + str(message), level=xbmc.LOGWARNING)
 
 
 if __name__ == "__main__":
+    m.set_version()
 
-	m.set_version()
+    Main_Service = m.Main()
 
-	Main_Service = m.Main()
-
-	log('Exiting OSMC Settings')
-
-
-
+    log('Exiting OSMC Settings')

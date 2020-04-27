@@ -1,5 +1,6 @@
 # Standard modules
 import os
+import sys
 import socket
 import subprocess
 import threading
@@ -28,6 +29,8 @@ class OSMC_Communicator(threading.Thread):
 
 		# logging function
 		self.log = logger
+
+		self.monitor = xbmc.Monitor()
 
 		# not sure I need this, but oh well
 		#self.wait_evt = threading.Event()
@@ -72,13 +75,16 @@ class OSMC_Communicator(threading.Thread):
 			self.stopped = True
 			sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 			sock.connect(self.address)
-			sock.send('exit')
+			message = 'exit'
+			if sys.version_info[0] > 2:
+				message = message.encode()
+			sock.send(message)
 			sock.close()
 			self.sock.close()
 
 			self.log('Exit message sent to socket.')
 				
-		except Exception, e:
+		except Exception as e:
 
 			self.log('Comms error trying to stop: {}'.format(e))
 
@@ -88,7 +94,7 @@ class OSMC_Communicator(threading.Thread):
 
 		self.log('Comms started')
 
-		while not xbmc.abortRequested and not self.stopped:
+		while not self.monitor.abortRequested and not self.stopped:
 
 			try:
 				# wait here for a connection
@@ -103,7 +109,7 @@ class OSMC_Communicator(threading.Thread):
 
 			# turn off blocking for this temporary connection
 			# this will allow the loop to collect all parts of the message
-			conn.setblocking(0)
+			conn.setblocking(False)
 
 			passed = False
 			total_wait = 0
@@ -137,11 +143,12 @@ class OSMC_Communicator(threading.Thread):
 			self.parent_queue.put(data)
 
 			conn.close()
+			self.monitor.waitForAbort(1)
 
 		try:
 			os.remove(self.address)
 
-		except Exception, e:
+		except Exception as e:
 			self.log('Comms error trying to delete socket: {}'.format(e))	
 
 		self.log('Comms Ended')

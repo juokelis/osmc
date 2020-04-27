@@ -26,6 +26,9 @@ class communicator(threading.Thread):
 		# queue back to parent
 		self.parent_queue = parent_queue
 
+		# get kodi Monitor
+		self.monitor = xbmc.Monitor()
+
 		# not sure I need this, but oh well
 		#self.wait_evt = threading.Event()
 
@@ -69,13 +72,13 @@ class communicator(threading.Thread):
 			self.stopped = True
 			sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 			sock.connect(self.address)
-			sock.send('exit')
+			sock.send('exit'.encode())
 			sock.close()
 			self.sock.close()
 
 			log('Exit message sent to socket.')
 				
-		except Exception, e:
+		except Exception as e:
 
 			log('Comms error trying to stop: {}'.format(e))
 
@@ -85,7 +88,7 @@ class communicator(threading.Thread):
 
 		log('Comms started')
 
-		while not xbmc.abortRequested and not self.stopped:
+		while not self.monitor.abortRequested and not self.stopped:
 
 			try:
 				# wait here for a connection
@@ -100,7 +103,7 @@ class communicator(threading.Thread):
 
 			# turn off blocking for this temporary connection
 			# this will allow the loop to collect all parts of the message
-			conn.setblocking(0)
+			conn.setblocking(False)
 
 			passed = False
 			total_wait = 0
@@ -138,7 +141,7 @@ class communicator(threading.Thread):
 		try:
 			os.remove(self.address)
 
-		except Exception, e:
+		except Exception as e:
 			log('Comms error trying to delete socket: {}'.format(e))	
 
 		log('Comms Ended')

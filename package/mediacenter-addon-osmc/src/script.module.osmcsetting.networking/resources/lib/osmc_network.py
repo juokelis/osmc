@@ -329,15 +329,15 @@ def wifi_connect(path, password=None, ssid=None, script_base_path = None):
         try:
              service.Connect(timeout=15000)
              connected = 0
-        except dbus.DBusException, e:
+        except dbus.DBusException as e:
             if len(e.args) > 0 and e.args[0] == 'Not registered' and agentNeeded:
                 connected += 1
                 time.sleep(1)
-                print 'Connection agent not started yet, waiting a second'
+                print('Connection agent not started yet, waiting a second')
             else: # another type of exception jump out of the loop
                 connected = (connectionAttempts+1)
-                print 'DBusException Raised: ' +  str(e)
-    print ('Connection to ' + path + ' : ' + str(connected == 0))
+                print('DBusException Raised: ' + str(e))
+    print('Connection to ' + path + ' : ' + str(connected == 0))
     if agentNeeded:
         process.kill()
         os.remove('/tmp/preseed_data')
@@ -348,7 +348,7 @@ def wifi_disconnect(path):
     service = connman.get_service_interface(path)
     try:
         service.Disconnect()
-    except dbus.DBusException, e:
+    except dbus.DBusException as e:
         print ('DBusException disconnecting')
         connected = False
 
@@ -357,14 +357,14 @@ def wifi_remove(path):
     service = connman.get_service_interface(path)
     try:
         service.Remove()
-    except dbus.DBusException, e:
+    except dbus.DBusException as e:
         print ('DBusException removing')
         connected = False
 
 
 def get_connected_wifi():
-    for address, wifis in get_wifi_networks().iteritems():
-        for ssid, value in wifis.iteritems():
+    for address, wifis in get_wifi_networks().items():
+        for ssid, value in wifis.items():
             if value['State'] in ('online', 'ready'):
                 return value
     return {}
@@ -387,7 +387,7 @@ def has_network_connection(online):
                             return check_MS_NCSI_response()
                         else: # if we on NFS we have network
                             True
-    for address, wifis in get_wifi_networks().iteritems():
+    for address, wifis in get_wifi_networks().items():
         for ssid in wifis.keys():
             info = wifis[ssid]
             if online:
@@ -446,7 +446,7 @@ def parse_preseed():
 
 
 def is_connman_wait_for_network_enabled():
-    return osmc_systemd.is_service_enabled(WAIT_FOR_NETWORK_SERVICE);
+    return osmc_systemd.is_service_enabled(WAIT_FOR_NETWORK_SERVICE)
 
 
 def toggle_wait_for_network(state):

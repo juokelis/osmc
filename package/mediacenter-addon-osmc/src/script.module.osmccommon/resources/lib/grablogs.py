@@ -502,7 +502,7 @@ def log(message):
     try:
         xbmc.log('OSMC LOGGING ' + str(message), level=xbmc.LOGDEBUG)
     except:
-        print message
+        print(message)
 
 
 def lang(id):
@@ -512,6 +512,15 @@ def lang(id):
 
     except:
         return '%s'
+
+
+# Backwards compatibility Py3 dict iter items to Py2
+def _iteritems(dictionary):
+    if sys.version_info[0] > 2:
+        items = iter(dictionary.items())
+    else:
+        items = dictionary.iteritems()
+    return items
 
 
 class CommandLine(object):
@@ -559,7 +568,7 @@ def right_now(raw=False):
             else:
                 with open('/proc/uptime', 'r') as f:
                     uptime_seconds = f.readline().split()[0]
-                
+
                 return datetime.now().strftime('%Y-%m-%d %H:%M:%S') + " - (Uptime = " + uptime_seconds + ")"
         except:
             time.sleep(0.2)
@@ -574,7 +583,7 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(description='Uploads vital logs to %s. If the network is unavailable, logs are copied to the SD Card.' % UPLOAD_LOC)
 
-    arguments = [v for k, v in SETS.iteritems()]
+    arguments = [v for k, v in _iteritems(SETS)]
     arguments.sort(key = lambda x: x.get('order', 99))
 
     parser.add_argument('-A', '--all',   action='store_true', dest='all',          help='Include all logs')
@@ -602,12 +611,12 @@ def parse_arguments():
     # if 'all' is specified then include all logs
     if args.all:
 
-        for k, v in SETS.iteritems():
+        for k, v in _iteritems(SETS):
             SETS[k]['active'] = True
 
     else:
 
-        for k, arg in vars(args).iteritems():
+        for k, arg in _iteritems(vars(args)):
             if k not in ignored_args:
                 SETS[k]['active'] = arg
 
@@ -668,11 +677,11 @@ class Main(object):
         except:
             self.pDialog = Dummy_Progress_Dialog()
 
-        self.number_of_actions = sum(1 for k, v in SETS.iteritems() if v.get('active', False))
+        self.number_of_actions = sum(1 for k, v in _iteritems(SETS) if v.get('active', False))
 
         self.pDialog.create(lang(32024), lang(32025))
 
-        self.arguments = [(k, v) for k, v in SETS.iteritems()]
+        self.arguments = [(k, v) for k, v in _iteritems(SETS)]
 
         self.arguments.sort(key = lambda x: x[1].get('order', 99))
 
@@ -751,8 +760,7 @@ class Main(object):
 
     def write_to_screen(self):
 
-        print ''.join(self.log_blotter)
-
+        print(''.join(self.log_blotter))
 
     def write_to_temp_file(self):
         ''' Writes the logs to a single temporary file '''

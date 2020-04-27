@@ -1,3 +1,4 @@
+import sys
 import time
 from functools import wraps
 
@@ -6,12 +7,25 @@ import xbmc
 TEST_LOG_BOOL = True
 
 def test_logger(msg):
-	print 'test-' + msg
+	print('test-' + msg)
 
 
 def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
-	return san 
+	try:
+		san = __addon__.getLocalizedString(id)
+	except UnicodeEncodeError:
+		san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+	return san
+
+
+# Backwards compatibility Py3 dict iter items to Py2
+def _iteritems(dictionary):
+	if sys.version_info[0] > 2:
+		items = iter(dictionary.items())
+	else:
+		items = dictionary.iteritems()
+	return items
+
 
 class StandardLogger(object):
 	''' Standard kodi logger. Used to add entries to the Kodi.log.
@@ -36,7 +50,7 @@ class StandardLogger(object):
 			label = str(label)
 		except UnicodeEncodeError:
 			label = label.encode('utf-8', 'ignore' )
-					
+
 		logmsg       = '%s : %s - %s ' % (self.__addonid__ , str(label), str(message))
 		xbmc.log(msg = logmsg, level=xbmc.LOGDEBUG)	
 
@@ -56,7 +70,7 @@ def ComprehensiveLogger(logger=None, logging=True, maxlength=250, nowait=False):
 
 	def default_logger(msg):
 
-		print msg
+		print(msg)
 
 
 	if logger == None:
@@ -74,7 +88,7 @@ def ComprehensiveLogger(logger=None, logging=True, maxlength=250, nowait=False):
 
 			all_args.append(itm)
 
-		for k, v in kwargs.iteritems():
+		for k, v in _iteritems(kwargs):
 
 			itm = str(k) + ": " + str(v)[:maxlength]
 
@@ -125,11 +139,11 @@ clog = comprehensive_logger
 @clog(logging=TEST_LOG_BOOL)
 def arg_tester(a, b, cdef):
 
-	print 'a: ' + str(a)
-	
-	print 'b: ' + str(b)
-	
-	print 'cdef: ' + str(cdef)
+	print('a: ' + str(a))
+
+	print('b: ' + str(b))
+
+	print('cdef: ' + str(cdef))
 
 
 if __name__ == "__main__":

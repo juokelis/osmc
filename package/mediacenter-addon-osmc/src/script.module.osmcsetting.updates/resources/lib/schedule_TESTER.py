@@ -2,11 +2,11 @@
 import datetime
 import random
 import sys
-from simple_scheduler import SimpleScheduler
+from resources.lib.simple_scheduler import SimpleScheduler
 
 
 '''
-    settings = {
+	settings = {
 
 	'check_freq' 	:    1,     # 1, 2, 3
 	'check_time' 	:    True, 	# True , False
@@ -15,7 +15,7 @@ from simple_scheduler import SimpleScheduler
 	'check_hour' 	:    0,     # 0 to 23
 	'check_minute'  :    0,     # 0 to 59
 
-    }
+	}
 
 '''
 
@@ -29,7 +29,7 @@ _minute   = list(range(59))
 
 def pop_set(freq, time, weekday, day, hour, minute):
 
-    settings = {
+	settings = {
 
 	'check_freq' :    freq,
 	'check_time' :    time,
@@ -37,23 +37,23 @@ def pop_set(freq, time, weekday, day, hour, minute):
 	'check_day'     :    day,
 	'check_hour' :    hour,
 	'check_minute' :    minute,
-    
-    }    
 
-    return settings
+	}
+
+	return settings
 
  
 def test(settings):
-    ''' This tests whether the trigger can be set on a specific date. '''
+	''' This tests whether the trigger can be set on a specific date. '''
 
-    start_date = datetime.datetime.now()     
+	start_date = datetime.datetime.now()
 
-    for single_date in (start_date + datetime.timedelta(n) for n in range(370)):
+	for single_date in (start_date + datetime.timedelta(n) for n in range(370)):
 
-	print single_date
-	s = SimpleScheduler(settings)
-	s.set_trigger(single_date)
-	# print s.trigger_time
+		print(single_date)
+		s = SimpleScheduler(settings)
+		s.set_trigger(single_date)
+		# print s.trigger_time
 
 
 
@@ -61,18 +61,15 @@ if __name__ == "__main__":
 
 	for f in _freq:
 
-	    print 'freq started'
+		print('freq started')
 
-	    for t in _time:
+		for t in _time:
 
-		for w in _weekday:
+			for w in _weekday:
 
-		    for d in _day:
+				for d in _day:
+					sett = pop_set(f, t, w, d, 22, 30)
+					print(sett)
+					test(sett)
 
-			sett = pop_set(f, t, w, d, 22, 30)
-
-			print sett
-
-			test(sett)
-
-		print 'freq_ended'
+		print('freq_ended')

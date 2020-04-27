@@ -1,10 +1,20 @@
-from functools import wraps
+import sys
 import time
+from functools import wraps
 
 TEST_LOG_BOOL = True
 
 def test_logger(msg):
-	print 'test-' + msg
+	print('test-' + msg)
+
+
+# Backwards compatibility Py3 dict iter items to Py2
+def _iteritems(dictionary):
+	if sys.version_info[0] > 2:
+		items = iter(dictionary.items())
+	else:
+		items = dictionary.iteritems()
+	return items
 
 
 def comprehensive_logger(logger=None, logging=True, maxlength=250, nowait=False):
@@ -20,10 +30,10 @@ def comprehensive_logger(logger=None, logging=True, maxlength=250, nowait=False)
 
 	def default_logger(msg):
 
-		print msg
+		print(msg)
 
 
-	if logger == None:
+	if logger is None:
 
 		logger = default_logger
 
@@ -38,7 +48,7 @@ def comprehensive_logger(logger=None, logging=True, maxlength=250, nowait=False)
 
 			all_args.append(itm)
 
-		for k, v in kwargs.iteritems():
+		for k, v in _iteritems(kwargs):
 
 			itm = str(k) + ": " + str(v)[:maxlength]
 
@@ -53,11 +63,11 @@ def comprehensive_logger(logger=None, logging=True, maxlength=250, nowait=False)
 		def wrapper(*args, **kwargs):
 
 			if logging and logger != None:
-			
+
 				logger(func.__module__ + '.' + func.__name__ + " received: " + ", ".join(get_args(*args, **kwargs)))
 
 			if nowait:
-				
+
 				func(*args, **kwargs)
 
 				logger(func.__module__ + '.' + func.__name__ + " -nowait")
@@ -65,15 +75,15 @@ def comprehensive_logger(logger=None, logging=True, maxlength=250, nowait=False)
 				return
 
 			else:
-	
+
 				start 	= time.time()
-				
+
 				result 	= func(*args, **kwargs)
 
 				end 	= time.time()
 
 				if logging and logger != None:
-				
+
 					logger(func.__module__ + '.' + func.__name__ + " [" + str(end-start) + "] " + ' returns: ' + str(result)[:maxlength])
 
 				return result
@@ -89,11 +99,11 @@ clog = comprehensive_logger
 @clog(logging=TEST_LOG_BOOL)
 def arg_tester(a, b, cdef):
 
-	print 'a: ' + str(a)
-	
-	print 'b: ' + str(b)
-	
-	print 'cdef: ' + str(cdef)
+	print('a: ' + str(a))
+
+	print('b: ' + str(b))
+
+	print('cdef: ' + str(cdef))
 
 
 if __name__ == "__main__":

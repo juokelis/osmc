@@ -26,8 +26,8 @@ class Logger(object):
 def call_parent(raw_message, data={}):
 
 	address = '/var/tmp/osmc.settings.update.sockfile'
-	
-	print '%s %s sending response' % (t.now(), 'apt_cache_action.py')
+
+	print('%s %s sending response' % (t.now(), 'apt_cache_action.py'))
 
 	message = (raw_message, data)
 
@@ -36,13 +36,13 @@ def call_parent(raw_message, data={}):
 	try:
 		sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 		sock.connect(address)
-		sock.sendall(message) 
+		sock.sendall(message.encode())
 		sock.close()
 
 	except Exception as e:
-		print '%s %s failed to connect to parent - %s' % (t.now(), 'apt_cache_action.py', e)
+		print('%s %s failed to connect to parent - %s' % (t.now(), 'apt_cache_action.py', e))
 
-	print '%s %s response sent' % (t.now(), 'apt_cache_action.py')
+	print('%s %s response sent' % (t.now(), 'apt_cache_action.py'))
 
 
 if __name__ == "__main__":

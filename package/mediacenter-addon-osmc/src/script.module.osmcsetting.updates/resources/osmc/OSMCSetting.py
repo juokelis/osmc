@@ -100,7 +100,7 @@ def log(message):
 	except UnicodeEncodeError:
 		message = message.encode('utf-8', 'ignore' )
 
-	xbmc.log(msg = 'OSMC UPDATES ' + str(message), level=xbmc.LOGDEBUG)
+	xbmc.log(msg='OSMC UPDATES ' + str(message), level=xbmc.LOGWARNING)
 
 
 class OSMCSettingClass(threading.Thread):
@@ -130,7 +130,7 @@ class OSMCSettingClass(threading.Thread):
 
 		self.reset_file = '/home/osmc/.factoryreset'
 
-		self.setting_data_method = 	{}
+		self.setting_data_method = {}
 
 		# 'mercury': 	{
 		# 					'setting_value' : '',
@@ -156,7 +156,7 @@ class OSMCSettingClass(threading.Thread):
 		self.reboot_required = False
 
 		log('START')
-		for x, k in self.setting_data_method.iteritems():
+		for x, k in self.setting_data_method.items():
 			log("%s = %s" % (x, k.get('setting_value','no setting value')))
 
 
@@ -173,7 +173,7 @@ class OSMCSettingClass(threading.Thread):
 		for key in self.setting_data_method.keys():
 
 			# grab the translate method (if there is one)
-			translate_method = self.setting_data_method.get(key,{}).get('translate',{})
+			translate_method = self.setting_data_method.get(key, {}).get('translate', {})
 
 			# get the setting value, translate it if needed
 			if translate_method:
@@ -215,7 +215,7 @@ class OSMCSettingClass(threading.Thread):
 			subprocess.call(['sudo', 'rm', self.reset_file])
 
 		log('END')
-		for x, k in self.setting_data_method.iteritems():
+		for x, k in self.setting_data_method.items():
 			log("%s = %s" % (x, k.get('setting_value','no setting value')))
 
 

@@ -4,7 +4,7 @@ from datetime import datetime
 import decimal
 import json
 import os
-import Queue
+import queue
 import random
 import socket
 import subprocess
@@ -17,47 +17,34 @@ import xbmcaddon
 import xbmcgui
 
 # Custom modules
-__libpath__ = xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources','lib'))
-sys.path.append(__libpath__)
-import comms
-import simple_scheduler as sched
-import OSMC_Backups
-from CompLogger import comprehensive_logger as clog
+from resources.lib import comms, simple_scheduler as sched, OSMC_Backups
+from resources.lib.CompLogger import comprehensive_logger as clog
 
 __addon__              	= xbmcaddon.Addon()
 __addonid__            	= __addon__.getAddonInfo('id')
 __scriptPath__         	= __addon__.getAddonInfo('path')
 __setting__            	= __addon__.getSetting
 __image_file__         	= os.path.join(__scriptPath__,'resources','media','update_available.png')
+__libpath__				= xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources','lib'))
+
 DIALOG = xbmcgui.Dialog()
 
 
 def lang(id):
-	san = __addon__.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+	san = __addon__.getLocalizedString(id)
 	return san 
 
 
 def log(message, label = ''):
-
-	try:
-		message = str(message)
-	except UnicodeEncodeError:
-		message = message.encode('utf-8', 'ignore' )
-
-	try:
-		label = str(label)
-	except UnicodeEncodeError:
-		label = label.encode('utf-8', 'ignore' )
-
 	logmsg       = '%s : %s - %s ' % (__addonid__ , str(label), str(message))
-	xbmc.log(msg = logmsg, level=xbmc.LOGDEBUG)
+	xbmc.log(msg = logmsg, level=xbmc.LOGWARNING)
 
 #@clog(log)
 def exit_osmc_settings_addon():
 	address = '/var/tmp/osmc.settings.sockfile'
 	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 	sock.connect(address)
-	sock.sendall('exit')
+	sock.sendall('exit'.encode())
 	sock.close()
 
 	return 'OSMC Settings addon called to exit'
@@ -168,7 +155,7 @@ class Main(object):
 							}
 
 		# queue for communication with the comm and Main
-		self.parent_queue = Queue.Queue()
+		self.parent_queue = queue.Queue()
 
 		self.randomid = random.randint(0,1000)
 
@@ -429,7 +416,7 @@ class Main(object):
 
 					log(comm_from_script, 'instruction has no assigned method')
 
-		except Queue.Empty:
+		except queue.Empty:
 			# the only exception that should be handled is when the queue is empty
 			pass
 
@@ -694,7 +681,7 @@ class Main(object):
 
 		# check the items in the temp dict and if they are differenct from the current settings, change the current settings,
 		# prompt action if certain settings are changed (like the scheduler settings)
-		for k, v in tmp_s.iteritems():
+		for k, v in tmp_s.items():
 
 			if v == self.s[k]:
 				continue
