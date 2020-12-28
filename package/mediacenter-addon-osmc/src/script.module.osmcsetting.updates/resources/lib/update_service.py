@@ -64,7 +64,7 @@ def get_hardware_prefix():
 
 			if setting.startswith('osmcdev='):
 
-				return setting[len('osmcdev='):]
+				return setting[len('osmcdev='):].strip()
 
 	return None
 
@@ -420,18 +420,31 @@ class Main(object):
 			# the only exception that should be handled is when the queue is empty
 			pass
 
+	@staticmethod
+	def check_platform_conditions():
+		if os.path.isfile('/platform_no_longer_updates'):
+			return False, 'Update CONDITION : platform no longer receives updates'
+
+		return True, ''
 
 	# MAIN METHOD
 	#@clog(log)
 	def check_update_conditions(self, connection_only=False):
 		''' Checks the users update conditions are met. 
 			Checks for:
+					- /platform_no_longer_updates file
 					- active player 
 					- idle time
 					- internet connectivity
 				connection_only, limits the check to just the internet connection
 					'''
 		if not connection_only:
+
+			check_platform, _ = self.check_platform_conditions()
+
+			if not check_platform:
+				log('Update CONDITION : platform no longer maintained')
+				return False, 'Update CONDITION : platform no longer maintained'
 
 			result_raw = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Player.GetActivePlayers", "id": 1 }')
 
@@ -605,6 +618,7 @@ class Main(object):
 			self.s['backup_playlists']        = True if 	__setting__('backup_playlists')			== 'true' else False
 			self.s['backup_profilesF']        = True if 	__setting__('backup_profilesF')			== 'true' else False
 			self.s['backup_Thumbnails']       = True if 	__setting__('backup_Thumbnails')		== 'true' else False
+			self.s['backup_Savestates']       = True if 	__setting__('backup_Savestates')		== 'true' else False
 			self.s['backup_favourites']       = True if 	__setting__('backup_favourites')		== 'true' else False
 			self.s['backup_keyboard']         = True if 	__setting__('backup_keyboard')			== 'true' else False
 			self.s['backup_remote']           = True if 	__setting__('backup_remote')			== 'true' else False
@@ -662,6 +676,7 @@ class Main(object):
 			tmp_s['backup_playlists']        = True if 		__setting__('backup_playlists')			== 'true' else False
 			tmp_s['backup_profilesF']        = True if 		__setting__('backup_profilesF')		        == 'true' else False
 			tmp_s['backup_Thumbnails']       = True if 		__setting__('backup_Thumbnails')		== 'true' else False
+			tmp_s['backup_Savestates']       = True if 	__setting__('backup_Savestates')		== 'true' else False
 			tmp_s['backup_favourites']       = True if 		__setting__('backup_favourites')		== 'true' else False
 			tmp_s['backup_keyboard']         = True if 		__setting__('backup_keyboard')			== 'true' else False
 			tmp_s['backup_remote']           = True if 		__setting__('backup_remote')			== 'true' else False
@@ -906,6 +921,11 @@ class Main(object):
 	#@clog(log)
 	def user_update_now(self):
 		''' Similar to update_now, but as this is a users request, forego all the player and idle checks. '''
+		check_platform, _ = self.check_platform_conditions()
+
+		if not check_platform:
+			_ = DIALOG.ok(lang(32136), lang(32137))
+			return
 
 		# check whether the install is an alpha version
 		if self.check_for_unsupported_version() == 'alpha': return
@@ -1191,6 +1211,10 @@ class Main(object):
 	# ACTION METHOD
 	#@clog(log)
 	def check_for_legit_updates(self):
+		check_platform, _ = self.check_platform_conditions()
+
+		if not check_platform:
+			return 'bail', 'Platform no longer maintained'
 
 		self.UPDATE_WARNING = False
 
@@ -1312,14 +1336,19 @@ class Main(object):
 
 		if check == 'bail':
 
-			if 'Sufficient freespace:' in result:
+			if 'no longer maintained' in result:
+				_ = DIALOG.ok(lang(32136), lang(32137))
+
+				self.progress_bar(kill=True)
+
+			elif 'Sufficient freespace:' in result:
 
 				# send kill message to progress bar
 				self.progress_bar(kill=True)
 
 			elif data == 'manual_update_complete':
 
-				okey_dokey = DIALOG.ok(lang(32077), lang(32092))
+				_ = DIALOG.ok(lang(32077), lang(32092))
 
 				# send kill message to progress bar
 				self.progress_bar(kill=True)
